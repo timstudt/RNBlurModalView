@@ -692,6 +692,7 @@ typedef void (^RNBlurCompletion)(void);
     CGColorSpaceRelease(colorSpace);
     
     free(pixelBuffer);
+    free(pixelBuffer2);
     CFRelease(inBitmapData);
     
     CGImageRelease(imageRef);
