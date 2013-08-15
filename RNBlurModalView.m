@@ -165,7 +165,13 @@ typedef void (^RNBlurCompletion)(void);
 
 
 - (id)initWithViewController:(UIViewController*)viewController view:(UIView*)view {
-    if (self = [self initWithFrame:CGRectMake(0, 0, viewController.view.width, viewController.view.height)]) {
+//    if (self = [self initWithFrame:CGRectMake(0, 0, viewController.view.width, viewController.view.height)]) {
+ //   CGRect frame = viewController.view.layer.visibleRect;
+    CGRect frame = viewController.view.frame;
+//    frame.origin.y = viewController.view.origin.y; // you can postion the popover with + and - values
+    
+//    CGRect frame = CGRectMake(visibleFrame.origin.x,visibleFrame.origin.y, viewController.view.width, viewController.view.height);
+    if (self = [self initWithFrame:frame]){
         [self addSubview:view];
         _contentView = view;
         _contentView.center = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
@@ -190,7 +196,8 @@ typedef void (^RNBlurCompletion)(void);
 }
 
 - (id)initWithParentView:(UIView*)parentView view:(UIView*)view {
-    if (self = [self initWithFrame:CGRectMake(0, 0, parentView.width, parentView.height)]) {
+//    if (self = [self initWithFrame:parentView.bounds]){// CGRectMake(parentView.bounds.origin.x, parentView.bounds.origin.y, parentView.width, parentView.height)]) {
+    if(self = [self initWithFrame:CGRectMake(0, 0, parentView.width, parentView.height)]){
         [self addSubview:view];
         _contentView = view;
         _contentView.center = CGPointMake(CGRectGetMidX(self.frame), CGRectGetMidY(self.frame));
@@ -303,7 +310,8 @@ typedef void (^RNBlurCompletion)(void);
     if (! self.isVisible) {
         if (! self.superview) {
             if (_controller) {
-                self.frame = CGRectMake(0, 0, _controller.view.bounds.size.width, _controller.view.bounds.size.height);
+//                self.frame = CGRectMake(0, 0, _controller.view.bounds.size.width, _controller.view.bounds.size.height);
+                self.frame = _controller.view.bounds;
                 [_controller.view addSubview:self];
             }
             else if(_parentView) {
@@ -317,7 +325,9 @@ typedef void (^RNBlurCompletion)(void);
         if (_controller) {
             _blurView = [[RNBlurView alloc] initWithCoverView:_controller.view];
             _blurView.alpha = 0.f;
-            self.frame = CGRectMake(0, 0, _controller.view.bounds.size.width, _controller.view.bounds.size.height);
+            _blurView.bounds = _controller.view.layer.visibleRect;
+//            self.frame = CGRectMake(0, 0, _controller.view.bounds.size.width, _controller.view.bounds.size.height);
+            self.frame = _controller.view.bounds;
 
             [_controller.view insertSubview:_blurView belowSubview:self];
         }
@@ -367,6 +377,10 @@ typedef void (^RNBlurCompletion)(void);
                              if (finished) {
                                  [_blurView removeFromSuperview];
                                  _blurView = nil;
+#if 0
+                                 [_contentView removeFromSuperview];
+                                 _contentView = nil;
+#endif
                                  [self removeFromSuperview];
                                  
                                  [[NSNotificationCenter defaultCenter] postNotificationName:kRNBlurDidHidewNotification object:nil];
@@ -392,7 +406,9 @@ typedef void (^RNBlurCompletion)(void);
 }
 
 - (id)initWithCoverView:(UIView *)view {
-    if (self = [super initWithFrame:CGRectMake(0, 0, view.bounds.size.width, view.bounds.size.height)]) {
+ //   if (self = [super initWithFrame:CGRectMake(0, 0, view.bounds.size.width, view.bounds.size.height)]) {
+    if (self = [super initWithFrame:view.bounds]) {
+//    if (self = [super initWithFrame:view.frame]) {
         _coverView = view;
         UIImage *blur = [_coverView screenshot];
         self.image = [blur boxblurImageWithBlur:kRNDefaultBlurScale];
@@ -409,7 +425,7 @@ typedef void (^RNBlurCompletion)(void);
 
 - (void)autoHeight {
     CGRect frame = self.frame;
-    CGSize maxSize = CGSizeMake(frame.size.width, 9999);
+    CGSize maxSize = CGSizeMake(frame.size.width, 100);
     CGSize expectedSize = [self.text sizeWithFont:self.font constrainedToSize:maxSize lineBreakMode:self.lineBreakMode];
     frame.size.height = expectedSize.height;
     [self setFrame:frame];
@@ -601,7 +617,8 @@ typedef void (^RNBlurCompletion)(void);
 @implementation UIView (Screenshot)
 
 - (UIImage*)screenshot {
-    UIGraphicsBeginImageContext(self.bounds.size);
+//    UIGraphicsBeginImageContext(self.bounds.size);
+    UIGraphicsBeginImageContext(self.frame.size);
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
