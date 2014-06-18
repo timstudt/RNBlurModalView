@@ -167,7 +167,7 @@ typedef void (^RNBlurCompletion)(void);
 - (id)initWithViewController:(UIViewController*)viewController view:(UIView*)view {
 //    if (self = [self initWithFrame:CGRectMake(0, 0, viewController.view.width, viewController.view.height)]) {
  //   CGRect frame = viewController.view.layer.visibleRect;
-    CGRect frame = viewController.view.frame;
+    CGRect frame = viewController.view.bounds;
 //    frame.origin.y = viewController.view.origin.y; // you can postion the popover with + and - values
     
 //    CGRect frame = CGRectMake(visibleFrame.origin.x,visibleFrame.origin.y, viewController.view.width, viewController.view.height);
@@ -537,6 +537,9 @@ typedef void (^RNBlurCompletion)(void);
 }
 
 - (UIImage *)closeButtonImage{
+    if (self.bounds.size.width == 0 && self.bounds.size.height == 0) {
+        [TestFlight passCheckpoint:@"Error: RnBlur: size=0,0"];        
+    }
     UIGraphicsBeginImageContextWithOptions(self.bounds.size, NO, 0);
     
     //// General Declarations
